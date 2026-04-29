@@ -1,0 +1,30 @@
+{
+  "entities": {
+    "MonthlyReport": {
+      "title": "Monthly Report",
+      "description": "Data laporan kontrasepsi bulanan per kecamatan",
+      "type": "object",
+      "properties": {
+        "month": { "type": "string", "description": "Nama bulan" },
+        "year": { "type": "number", "description": "Tahun laporan" },
+        "kecamatan": { "type": "string", "description": "Nama kecamatan" },
+        "method": { "type": "string", "description": "Metode kontrasepsi (MOW, MOP, dll)" },
+        "ppm": { "type": "number", "description": "Target PPM" },
+        "bulanLalu": { "type": "number", "description": "Capaian bulan lalu" },
+        "bulanIni": { "type": "number", "description": "Capaian bulan ini" },
+        "jumlah": { "type": "number", "description": "Total capaian (bulanLalu + bulanIni)" },
+        "prosentase": { "type": "number", "description": "Persentase pencapaian" },
+        "sisa": { "type": "number", "description": "Sisa target" },
+        "kategoriBulan": { "type": "string", "description": "Kategori pencapaian" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Waktu update terakhir" }
+      },
+      "required": ["month", "year", "kecamatan", "method", "ppm", "bulanLalu", "bulanIni", "jumlah", "prosentase", "sisa", "kategoriBulan", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/reports/{reportId}": {
+      "schema": "MonthlyReport",
+      "description": "Koleksi data laporan bulanan"
+    }
+  }
+}

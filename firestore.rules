@@ -1,0 +1,56 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidMonthlyReport(data) {
+      return data.keys().hasAll(['month', 'year', 'kecamatan', 'method', 'ppm', 'bulanLalu', 'bulanIni', 'jumlah', 'prosentase', 'sisa', 'kategoriBulan', 'updatedAt'])
+        && data.keys().size() == 12
+        && data.month is string && data.month.size() <= 20
+        && data.year is number
+        && data.kecamatan is string && data.kecamatan.size() <= 50
+        && data.method is string && data.method.size() <= 20
+        && data.ppm is number
+        && data.bulanLalu is number
+        && data.bulanIni is number
+        && data.jumlah is number
+        && data.prosentase is number
+        && data.sisa is number
+        && data.kategoriBulan is string
+        && data.updatedAt == request.time;
+    }
+
+    match /reports/{reportId} {
+      allow read: if true;
+      
+      allow create: if isSignedIn() 
+        && isValidMonthlyReport(incoming());
+      
+      allow update: if isSignedIn()
+        && isValidMonthlyReport(incoming())
+        && incoming().diff(existing()).affectedKeys().hasAny(['ppm', 'bulanLalu', 'bulanIni', 'jumlah', 'prosentase', 'sisa', 'kategoriBulan', 'updatedAt']);
+
+      allow delete: if isSignedIn();
+    }
+  }
+}
